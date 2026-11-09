@@ -33,17 +33,17 @@
  const PRESETS=[
   ['מנוף צריח',160,'3X160',0.5],
   ['מעלית משא חיצונית',80,'3X100',0.5],
-  ['משאבה סטטית',63,'3X63',0.3],
-  ['משרדי אתר',100,'3X100',0.7],
-  ['משאבת ניקוז',16,'3X25',0.3],
-  ['משאבת מים – הגברת לחץ',32,'3X40',0.7],
-  ['עמדת עבודה',10,'3X63',0.3],
-  ['טיח חוץ',32,'3X32',0.4],
-  ['פיגום תלוי',63,'3X80',0.4],
-  ['תאורת אתר כללית',null,'3X25',0.9,8],
-  ['מכונת ריתוך',null,'3X32',0.5,12],
-  ['סילו צמנט + מסוע חלזון',null,'3X25',0.7,11],
-  ['שער, שמירה ומצלמות',16,'1X16',0.8]];
+  ['משאבה סטטית',63,'3X63',0.1],
+  ['משרדי אתר',100,'3X100',0.1],
+  ['משאבת ניקוז',16,'3X25',0.1],
+  ['משאבת מים – הגברת לחץ',32,'3X40',0.1],
+  ['עמדת עבודה',10,'3X63',0.1],
+  ['טיח חוץ',32,'3X32',0.1],
+  ['פיגום תלוי',63,'3X80',0.1],
+  ['תאורת אתר כללית',null,'3X25',0.1,8],
+  ['מכונת ריתוך',null,'3X32',0.1,12],
+  ['סילו צמנט + מסוע חלזון',null,'3X25',0.1,11],
+  ['שער, שמירה ומצלמות',16,'1X16',0.1]];
  CRANES.forEach(c=>PRESETS.push(['מנוף '+c[0],null,c[5],0.5,c[4]]));
  HOISTS.forEach(h=>PRESETS.push(['מעלית '+h[0],null,h[4],0.5,h[3]]));
  const preset=n=>PRESETS.find(p=>p[0]===String(n||'').trim());
@@ -56,7 +56,7 @@
    מרתף: לוח משנה חניון, עמדות עבודה ומשאבות ניקוז לפי קומות המרתף.
    לכל האתר: משרדי אתר, תאורת אתר, מכונת ריתוך, שער ושמירה. */
  const RULES={wsLow:1,wsLowMin:10,wsTall:2,wsBase:4};
- function row(n,q,b,note,V,PF){const p=preset(n)||[n,0,'',0.5];const a=p[1]!=null?p[1]:Math.round(kw2a(p[4],V,PF)*10)/10;return {n,q,a,brk:p[2],b,u:p[3],note:note||''}}
+ function row(n,q,b,note,V,PF){const p=preset(n)||[n,0,'',0.1];const a=p[1]!=null?p[1]:Math.round(kw2a(p[4],V,PF)*10)/10;return {n,q,a,brk:p[2],b,u:p[3],note:note||''}}
  function generate(inp,params){
   inp=inp||{};const P=Object.assign({},DEF,params||{});
   const blds=(inp.buildings||[]).map((b,i)=>({name:String(b.name||'').trim()||('בניין '+(i+1)),floors:Math.max(0,Math.round(num(b.floors))),tall:isTall(b)}));
@@ -75,7 +75,7 @@
    rows.push(row('טיח חוץ',1,id,'',P.V,P.PF));});
   const bf=Math.max(0,Math.round(num(inp.basementFloors)));
   if(bf>0){const id=nb('לוח משנה חניון');
-   const r1=row('עמדת עבודה',bf*RULES.wsBase,id,RULES.wsBase+' עמדות לכל קומת מרתף',P.V,P.PF);r1.u=0.5;rows.push(r1);
+   const r1=row('עמדת עבודה',bf*RULES.wsBase,id,RULES.wsBase+' עמדות לכל קומת מרתף',P.V,P.PF);rows.push(r1);
    rows.push(row('משאבת ניקוז',bf+1,id,'',P.V,P.PF));}
   rows.push(row('משרדי אתר',1,'b0','מכולות משרדים',P.V,P.PF));
   rows.push(row('תאורת אתר כללית',1,'b0','',P.V,P.PF));
@@ -107,5 +107,5 @@
  function recommend(inp,params){const st=generate(inp,params),r=compute(st,params);
   const parts=[];if(r.cranes)parts.push(r.cranes+' מנופים');if(r.hoists)parts.push(r.hoists+' מעליות חיצוניות');
   return {size:r.size,amps:r.conn,TA:r.TA,TD:r.TD,over:r.over,cranes:r.cranes,hoists:r.hoists,summary:parts.join(', '),state:st};}
- g.TTC={VER:'1',CRANES,HOISTS,STEPS,CONN,DEF,PRESETS,RULES,preset,kw2a,generate,compute,recommend,isTall};
+ g.TTC={VER:'2',CRANES,HOISTS,STEPS,CONN,DEF,PRESETS,RULES,preset,kw2a,generate,compute,recommend,isTall};
 })(typeof window!=='undefined'?window:globalThis);
