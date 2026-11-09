@@ -69,6 +69,31 @@ label.fl{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--m
 .rec b{color:var(--red)}
 .hand{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#eef6ee;border:1px solid #bcdcbc;border-radius:10px;padding:8px 12px;margin-bottom:12px;font-size:14px}
 .hand[hidden]{display:none}
+.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.tabs button{height:38px;padding:0 16px;border:1px solid var(--line);background:#fff;border-radius:9px;font:inherit;font-size:15px;cursor:pointer;color:var(--ink)}
+.tabs button.on{background:var(--red);border-color:var(--red);color:#fff;font-weight:bold}
+.f.pick input{padding-left:50px}
+.pk{position:absolute;left:25px;top:50%;transform:translateY(-50%);width:22px;height:22px;border:1px solid #d6b8bd;border-radius:6px;background:#fff6f7;cursor:pointer;font-size:12px;padding:0;display:flex;align-items:center;justify-content:center}
+.pk:hover{background:var(--red);color:#fff}
+.pk[hidden]{display:none}
+.catwrap h2{font-size:18px;color:var(--red);margin:0 0 4px}
+.pickbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff6e5;border:1px solid #f0d29a;border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:14px}
+.types{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+.types.two{grid-template-columns:repeat(2,1fr)}
+.tcard{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center;background:#fff;border:2px solid var(--line);border-radius:10px;padding:8px;cursor:pointer;text-align:right;font:inherit;color:var(--ink)}
+.tcard.on{border-color:var(--red);background:#fff6f7}
+.tcard img{width:150px;height:auto;display:block}
+.tcard b{color:var(--red);font-size:15px}
+.tcard small{display:block;color:var(--mut);font-size:12.5px;line-height:1.4;margin-top:2px}
+.ctab{width:100%;border-collapse:collapse;font-size:13px;background:#fff}
+.ctab th,.ctab td{border:1px solid var(--line);padding:5px 6px;text-align:right;vertical-align:middle}
+.ctab th{background:#e8f2fb;font-size:12.5px}
+.ctab tr:hover td{background:#fafbfc}
+.ctab .sel{height:30px;padding:0 10px;font-size:13px}
+.ctab .fx{display:block;font-size:11px;color:var(--warn)}
+.ctab a{color:#0563C1;text-decoration:none;white-space:nowrap}
+@media (max-width:1000px){.types,.types.two{grid-template-columns:1fr}.ctabw{overflow-x:auto}}
+
 .adds{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .sub{display:flex;gap:16px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:14px}
 .sub b{font-variant-numeric:tabular-nums}
@@ -139,6 +164,7 @@ label.fl{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--m
 </header>
 
 <div id="app">
+ <nav class="tabs" id="tabs"><button type="button" data-v="main" class="on" title="טופס התכנון והמסמך">📝 טופס ראשי</button><button type="button" data-v="cranes" title="קטלוג מנופי צריח – סוגים, תמונות, הספק וזרם">🏗 מנופים</button><button type="button" data-v="hoists" title="קטלוג מעליות חיצוניות – סוגים, תמונות, הספק וזרם">⬍ מעליות חיצוניות</button></nav>
  <div class="bar">
   <button type="button" class="btn" onclick="saveFile()" title="שמירת כל הנתונים לקובץ במחשב">💾 שמירה</button>
   <button type="button" class="btn" onclick="$('openf').click()" title="פתיחת קובץ שנשמר קודם">📂 פתיחה</button>
@@ -151,6 +177,8 @@ label.fl{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--m
   <button type="button" class="btn" onclick="sendToIEC()" title="העברת גודל החיבור הזמני המומלץ לטופס פתיחת ההזמנות בחברת החשמל">⚡ לטופס פתיחת ההזמנות</button>
   <div class="res-chip">סה"כ זרם תכן: <span id="chipI">—</span> · חיבור זמני מומלץ: <b id="chip">—</b></div>
  </div>
+ <section id="vCat" hidden></section>
+ <div id="vMain">
  <div class="hand" id="hand" hidden><span id="handTxt"></span><button type="button" class="btn pri" onclick="sendToIEC()" id="handBtn">↩ חזרה עם גודל החיבור</button></div>
 
  <section class="card">
@@ -168,7 +196,7 @@ label.fl{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--m
   <div class="hd"><h2>הערכה לפי מבנים</h2><span class="sp"></span><button type="button" class="help" onclick="tog('e_bld')">הסבר ▾</button></div>
   <div class="exp" id="e_bld" hidden>
    <p>ממלאים את הבניינים באתר – האפליקציה בונה אוטומטית את הלוחות ואת רשימת הצרכנים, ומחזירה המלצה לגודל החיבור הזמני. אחר כך אפשר לערוך כל שורה.</p>
-   <p><b>עד 29 מ'</b> – מנוף אחד לכל זוג בניינים. <b>מעל 29 מ'</b> – לכל בניין מנוף ומעלית חיצונית, וגם משאבת מים להגברת לחץ, משאבה סטטית ופיגום תלוי.</p>
+   <p><b>עד 29 מ'</b> – מנוף אחד לכל זוג בניינים (80A). <b>29 עד 42 מ'</b> – לכל בניין מנוף (100A). <b>מעל 42 מ'</b> – לכל בניין מנוף (160A). לכל בניין מעל 29 מ' גם מעלית חיצונית (80A, מפסק 3X80), משאבת מים להגברת לחץ, משאבה סטטית ופיגום תלוי.</p><p>בכל שורת מנוף או מעלית אפשר לבחור דגם מהקטלוג (כפתור 📋) – הזרם והמפסק מתמלאים אוטומטית.</p>
    <p>לכל בניין: לוח משנה, עמדות עבודה (בניין עד 29 מ' – עמדה לקומה ולפחות 10; מעל 29 מ' – 2 עמדות לקומה) וטיח חוץ. מרתף: לוח משנה חניון, 4 עמדות עבודה ומשאבת ניקוז לכל קומת מרתף. לכל האתר: משרדי אתר, תאורת אתר, מכונת ריתוך, שער ושמירה.</p>
    <p>הגובה – רצפת קומת המגורים האחרונה. בלי גובה – הערכה לפי 2.9 מ' לקומה.</p>
   </div>
@@ -186,7 +214,7 @@ label.fl{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--m
   <div class="exp" id="e_net" hidden>
    <p><b>מתח קו ו-cosφ</b> – משמשים להמרת הספק (kW) לזרם כשבוחרים מנוף, מעלית או ציוד מהרשימה: זרם = kW×1000 / (√3 × V × cosφ).</p>
    <p><b>מקדם ביטחון / רזרבה</b> – מכפיל את סה"כ הזרם המחושב לקבלת זרם התכן, שממנו נבחרים מפסק ההזנה לכל לוח וגודל החיבור.</p>
-   <p><b>מקדם בו-זמניות קבוצתי</b> – נקבע לפי סך היחידות מאותו צרכן בכל הפרויקט, ויורד ככל שיש יותר יחידות (קטן הסיכוי שכולן בשיא יחד). אפשר לבטל אותו – ואז החישוב לפי מקדם השימוש בלבד, כמו בפורמט טיקטין.</p>
+   <p><b>מקדם בו-זמניות קבוצתי</b> – נקבע לפי סך היחידות מאותו צרכן בכל הפרויקט (כל המנופים יחד, כל המעליות יחד), ויורד ככל שיש יותר יחידות (קטן הסיכוי שכולן בשיא יחד). אפשר לבטל אותו – ואז החישוב לפי מקדם השימוש בלבד, כמו בפורמט טיקטין.</p>
   </div>
   <div class="grid g6">
    <label class="fl">מתח קו (V)<span class="f"><input id="v" class="num" inputmode="decimal" data-def="400"></span></label>
@@ -224,23 +252,10 @@ label.fl{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--m
   <div class="sub"><span>סה"כ זרם מחושב: <b id="sumA">0 A</b></span><span>זרם תכן לאחר רזרבה: <b id="sumD">0 A</b></span></div>
  </section>
 
- <section class="card">
-  <div class="hd"><h2>טבלאות עזר – מנופים ומעליות</h2><span class="sp"></span><button type="button" class="help" onclick="tog('e_ref')">הצגה ▾</button></div>
-  <div id="e_ref" hidden>
-   <div class="exp">
-    <p><b>מנוף פטיש / ראש-חתול (Hammerhead)</b> – משולש בראש התורן שממנו נמתחים כבלים לזרוע. בנייה כללית ותעשייה, טווח גדול ועומסים כבדים.</p>
-    <p><b>מנוף שטוח-ראש (Flat-top)</b> – ללא ראש-חתול, הזרוע וזרוע-הנגד שטוחות. בנייני מגורים – הנפוץ ביותר.</p>
-    <p><b>מנוף זרוע מתרוממת (Luffing jib)</b> – הזרוע עולה ויורדת בזווית; לבנייה עירונית צפופה ומגדלים. כולל מנוע נוסף להרמת הזרוע.</p>
-    <p><b>מעלית חיצונית – תא בודד / תא כפול (Twin)</b> – מסילה וגלגל שיניים על תורן מעוגן לבניין. תא כפול – הספק כפול בקירוב.</p>
-    <p>הספק כולל וחיבור מומלץ – אומדן הנדסי; לאמת מול לוחית הנתונים של הציוד. זרם ההתנעה של מנוע ההרמה גבוה מהזרם הרציף (מבטח בעקומה D).</p>
-   </div>
-   <div class="ref" id="refTables"></div>
-  </div>
- </section>
-
  <div id="docwrap">
   <h2>מסמך תכנון החשמל הזמני</h2>
   <div id="doc"></div>
+ </div>
  </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -249,7 +264,7 @@ label.fl{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--m
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="estimate.js"></script>
 <script>
-const VER='2', VDATE='09.11.2026', LOGO=document.querySelector('header img').src;
+const VER='3', VDATE='09.11.2026', LOGO=document.querySelector('header img').src;
 const APPS_BASE='https://tiktiny.github.io/', IEC_URL=APPS_BASE+'iec-orders/';
 const $=id=>document.getElementById(id);
 $('ver').textContent='גרסה '+VER+' · עודכן '+VDATE;
@@ -349,7 +364,7 @@ function delCons(i){S.rows.splice(i,1);drawCons();calc()}
 function drawCons(){
  const h=`<div class="lr h"><span>צרכן</span><span>כמות</span><span>זרם ליח' [A]</span><span>מפסק</span><span>מוזן מלוח</span><span>מקדם שימוש</span><span>מקדם קבוצתי</span><span>סה"כ זרם [A]</span><span>הערות</span><span></span></div>`;
  $('consRows').innerHTML=h+S.rows.map((r,i)=>`<div class="lr">
-  <span class="f wide" data-l="צרכן"><input data-k="n" data-i="${i}" list="presets" value="${esc(r.n)}" placeholder="בחירה מהרשימה או הקלדה" title="בחירה מהרשימה ממלאת זרם, מפסק ומקדם שימוש"></span>
+  <span class="f wide pick" data-l="צרכן"><input data-k="n" data-i="${i}" list="presets" value="${esc(r.n)}" placeholder="בחירה מהרשימה או הקלדה" title="בחירה מהרשימה ממלאת זרם, מפסק ומקדם שימוש"><button type="button" class="pk" onclick="openPick(${i})" title="בחירת דגם מקטלוג המנופים / המעליות – עם תמונות, סוגים, הספק וזרם" ${isCraneName(r.n)||isHoistName(r.n)?'':'hidden'}>📋</button></span>
   <span class="f" data-l="כמות"><input class="num" inputmode="decimal" data-k="q" data-i="${i}" value="${r.q}"></span>
   <span class="f" data-l="זרם ליח' [A]"><input class="num" inputmode="decimal" data-k="a" data-i="${i}" value="${r.a}"></span>
   <span class="f" data-l="מפסק"><select data-k="brk" data-i="${i}" title="מפסק נדרש עבור הצרכן בלוח המזין"><option value=""></option>${BRK.map(b=>`<option${b===r.brk?' selected':''}>${b}</option>`).join('')}${r.brk&&!BRK.includes(r.brk)?`<option selected>${esc(r.brk)}</option>`:''}</select></span>
@@ -365,7 +380,7 @@ function drawCons(){
 }
 function onConsEdit(e){
  const el=e.target,i=+el.dataset.i,r=S.rows[i],k=el.dataset.k;
- if(k==='n'){r.n=el.value;
+ if(k==='n'){r.n=el.value;const pk=el.parentNode.querySelector('.pk');if(pk)pk.hidden=!(isCraneName(r.n)||isHoistName(r.n));
   const p=TTC.preset(el.value);
   if(p&&e.type==='input'){const row=el.closest('.lr'),P=params();
    r.a=p[1]!=null?p[1]:Math.round(TTC.kw2a(p[4],P.V,P.PF)*10)/10;r.brk=p[2];r.u=p[3];if(r.q===''||r.q===0)r.q=1;
@@ -478,11 +493,39 @@ function renderDoc(){
  </ul>
  <div class="ft"><span>טיקטין תכנון חשמל (2003) בע״מ</span><span>תכנון חשמל זמני · גרסה ${VER}</span></div>`;
 }
-function refTables(){
- $('refTables').innerHTML=`<table class="rt"><tr><th>דגם המנוף</th><th>סוג</th><th>עומס מרבי</th><th>גובה וו מרבי</th><th>הספק מותקן כולל (kW)</th><th>חיבור מומלץ</th></tr>`+
- TTC.CRANES.map(c=>`<tr><td class="ltr">${c[0]}</td><td>${c[1]}</td><td>${c[2]}</td><td>${c[3]}</td><td class="n">~${c[4]}</td><td class="n ltr">${c[5]}A</td></tr>`).join('')+`</table><br>
- <table class="rt"><tr><th>דגם המעלית</th><th>סוג</th><th>תצורת מנועים</th><th>הספק מותקן כולל (kW)</th><th>חיבור מומלץ</th></tr>`+
- TTC.HOISTS.map(c=>`<tr><td class="ltr">${c[0]}</td><td>${c[1]}</td><td class="ltr">${c[2]}</td><td class="n">${c[3]}</td><td class="n ltr">${c[4]}A</td></tr>`).join('')+`</table>`;
+// ---------- קטלוג מנופים ומעליות ----------
+let VIEW='main',PICK=null;const CF={cranes:'',hoists:''};
+const isCraneName=n=>/^מנוף/.test(String(n||'').trim()),isHoistName=n=>/^מעלית/.test(String(n||'').trim());
+function view(v){VIEW=v;$('vMain').hidden=v!=='main';$('vCat').hidden=v==='main';
+ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+ if(v!=='main')renderCat(v);else PICK=null;window.scrollTo(0,0)}
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{if(b.dataset.v!=='main')PICK=null;view(b.dataset.v)});
+function openPick(i){const n=S.rows[i]&&S.rows[i].n;PICK={i};view(isHoistName(n)?'hoists':'cranes')}
+function renderCat(kind){
+ const C=kind==='cranes',L=C?TTC.CRANES:TTC.HOISTS,T=C?TTC.CTYPES:TTC.HTYPES,f=CF[kind];
+ const rows=L.map((x,i)=>({x,i})).filter(o=>!f||o.x.t===f).sort((a,b)=>a.x.kw-b.x.kw);
+ const pr=PICK&&S.rows[PICK.i];
+ const bar=pr?`<div class="pickbar">בחירת ${C?'מנוף':'מעלית'} לשורה: <b>${esc(pr.n||'צרכן')}</b> (${esc(boardName(pr.b))}) – לוחצים "בחירה" בדגם הרצוי. <button type="button" class="btn" onclick="PICK=null;view('main')">ביטול וחזרה לטופס</button></div>`:
+  `<div class="pickbar">לחיצה על "בחירה" מוסיפה את הדגם כשורה חדשה בטבלת הצרכנים (בלוח הראשי – אפשר לשנות לוח). לבחירה לשורה קיימת – כפתור 📋 בשורת המנוף או המעלית.</div>`;
+ const types=`<div class="types${C?'':' two'}">`+Object.entries(T).map(([k,v])=>`<button type="button" class="tcard${f===k?' on':''}" onclick="CF['${kind}']=CF['${kind}']==='${k}'?'':'${k}';renderCat('${kind}')" title="סינון הטבלה לפי סוג – לחיצה נוספת מבטלת"><img src="${v.img}" alt="${esc(v.n)}"><span><b>${v.n}</b> <span class="ltr" style="color:var(--mut);font-size:12px">(${v.en})</span><small>${v.d}</small></span></button>`).join('')+`</div>`;
+ const head=C?['דגם','סוג','שימוש טיפוסי','עומס מרבי','גובה וו מרבי','מנוע הרמה (kW)','הספק כולל (kW)','cosφ','זרם [A]','חיבור מומלץ','נתונים','']
+  :['דגם','סוג','תצורת מנועים','שימוש טיפוסי','עומס מרבי (kg)','מהירות','הספק כולל (kW)','cosφ','זרם [A]','חיבור מומלץ','נתונים',''];
+ const body=rows.map(({x,i})=>{const A=TTC.modelA(x),tn=T[x.t].n;
+  const cells=C?[`<b class="ltr">${esc(x.m)}</b>`,`${tn}<span class="fx ltr" style="color:var(--mut)">${x.sub}</span>`,x.use,x.load,x.hook,`<span class="n">${x.mot}</span>`,`~${x.kw}`,f2(x.pf),f1(A),`<b class="ltr">${x.conn}A</b>${x.fix?`<span class="fx">תוקן – באקסל ${x.fix}</span>`:''}`]
+   :[`<b class="ltr">${esc(x.m)}</b>`,tn,`<span class="ltr">${x.mot}</span>`,x.use,x.load,`<span class="ltr">${x.speed}</span>`,x.kw,f2(x.pf),f1(A),`<b class="ltr">${x.conn}A</b>`];
+  return `<tr title="${esc(x.note)}">${cells.map((c,j)=>`<td${j>=5&&j<=8?' class="n"':''}>${c}</td>`).join('')}<td><a href="${x.link}" target="_blank" rel="noopener" title="דף נתונים של היצרן – נפתח בלשונית חדשה">דף נתונים ↗</a></td><td><button type="button" class="btn pri sel" onclick="pickModel('${kind}',${i})">בחירה</button></td></tr>`}).join('');
+ $('vCat').innerHTML=`<div class="card catwrap"><h2>${C?'מנופי צריח נפוצים בישראל':'מעליות חיצוניות נפוצות (אלימק)'}</h2>
+  <div class="note" style="font-size:13px;color:var(--mut)">ממוינים לפי הספק מהנמוך לגבוה. הזרם מחושב מההספק הכולל וה-cosφ של הדגם ב-400V. הספק כולל וחיבור – אומדן הנדסי, לאמת מול לוחית הנתונים של הציוד. ${C?'זרם ההתנעה של מנוע ההרמה גבוה מהזרם הרציף – לוודא מבטח בעקומה D. מנוף זרוע מתרוממת כולל מנוע נוסף להרמת הזרוע.':'הנעה מבוקרת-תדר (VFC) – זרם התנעה נמוך משמעותית וכבל הזנה קטן יותר.'}</div>
+  ${bar}${types}<div class="ctabw"><table class="ctab"><tr>${head.map(x=>`<th>${x}</th>`).join('')}</tr>${body||`<tr><td colspan="12">אין דגמים מסוג זה</td></tr>`}</table></div></div>`;
+}
+function pickModel(kind,i){
+ const C=kind==='cranes',x=(C?TTC.CRANES:TTC.HOISTS)[i],n=(C?'מנוף ':'מעלית ')+x.m,A=TTC.modelA(x);
+ let idx;
+ if(PICK&&S.rows[PICK.i]){idx=PICK.i;Object.assign(S.rows[idx],{n,a:A,brk:x.conn,u:0.5});if(!num(S.rows[idx].q))S.rows[idx].q=1}
+ else{S.rows.push({n,q:1,a:A,brk:x.conn,b:S.boards[0].id,u:0.5,note:''});idx=S.rows.length-1}
+ PICK=null;view('main');drawCons();calc();
+ const row=$('consRows').children[idx+1];if(row){row.scrollIntoView({block:'center'});row.style.outline='2px solid var(--red)';setTimeout(()=>row.style.outline='',1800)}
+ toast((C?'המנוף':'המעלית')+' '+x.m+' – '+f1(A)+'A, מפסק '+x.conn);
 }
 
 // ---------- כלים ----------
@@ -587,7 +630,7 @@ function zoomBy(d){zoomSet(Z+d*0.1)}
 function zoomFit(){zoomSet((document.documentElement.clientWidth-8)/1280)}
 
 // ---------- הפעלה ----------
-refTables();
+if(/^#(cranes|hoists)$/.test(location.hash))setTimeout(()=>view(location.hash.slice(1)),0);
 if(!readHandoff()){
  let saved=null;try{saved=JSON.parse(localStorage.getItem('tiktin-temp-conn')||'null')}catch(e){}
  if(saved&&saved.boards)applyState(saved);else{S=exampleState();$('bf').value=S.bf;fixUid();drawAll();calc()}
