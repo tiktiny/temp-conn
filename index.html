@@ -264,7 +264,7 @@ label.fl{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--m
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="estimate.js"></script>
 <script>
-const VER='4', VDATE='09.11.2026', LOGO=document.querySelector('header img').src;
+const VER='5', VDATE='09.11.2026', LOGO=document.querySelector('header img').src;
 const APPS_BASE='https://tiktiny.github.io/', IEC_URL=APPS_BASE+'iec-orders/';
 const $=id=>document.getElementById(id);
 $('ver').textContent='גרסה '+VER+' · עודכן '+VDATE;
@@ -511,7 +511,7 @@ function renderCat(kind){
  const head=C?['דגם','סוג','שימוש טיפוסי','עומס מרבי','גובה וו מרבי','מנוע הרמה (kW)','הספק כולל (kW)','cosφ','זרם [A]','חיבור מומלץ','נתונים','']
   :['דגם','סוג','תצורת מנועים','שימוש טיפוסי','עומס מרבי (kg)','מהירות','הספק כולל (kW)','cosφ','זרם [A]','חיבור מומלץ','נתונים',''];
  const body=rows.map(({x,i})=>{const A=TTC.modelA(x),tn=T[x.t].n;
-  const cells=C?[`<b class="ltr">${esc(x.m)}</b>`,`${tn}<span class="fx ltr" style="color:var(--mut)">${x.sub}</span>`,x.use,x.load,x.hook,`<span class="n">${x.mot}</span>`,`~${x.kw}`,f2(x.pf),f1(A),`<b class="ltr">${x.conn}A</b>${x.fix?`<span class="fx">תוקן – באקסל ${x.fix}</span>`:''}`]
+  const cells=C?[`<b class="ltr">${esc(x.m)}</b>`,`${tn}<span class="fx ltr" style="color:var(--mut)">${x.sub}</span>`,x.use,x.load,x.hook,`<span class="n">${x.mot}</span>`,`~${x.kw}`,f2(x.pf),f1(A),`<b class="ltr">${x.conn}A</b>`]
    :[`<b class="ltr">${esc(x.m)}</b>`,tn,`<span class="ltr">${x.mot}</span>`,x.use,x.load,`<span class="ltr">${x.speed}</span>`,x.kw,f2(x.pf),f1(A),`<b class="ltr">${x.conn}A</b>`];
   return `<tr title="${esc(x.note)}">${cells.map((c,j)=>`<td${j>=5&&j<=8?' class="n"':''}>${c}</td>`).join('')}<td><a href="${x.link}" target="_blank" rel="noopener" title="דף נתונים של היצרן – נפתח בלשונית חדשה">דף נתונים ↗</a></td><td><button type="button" class="btn pri sel" onclick="pickModel('${kind}',${i})">בחירה</button></td></tr>`}).join('');
  $('vCat').innerHTML=`<div class="card catwrap"><h2>${C?'מנופי צריח נפוצים בישראל':'מעליות חיצוניות נפוצות (אלימק)'}</h2>
