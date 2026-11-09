@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>חשמל זמני לאתר בנייה – טיקטין</title>
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#C8102E">
+<style>
+/* פריסה: קלט ברוחב מלא למעלה, מסמך החישוב מתחת. בהיר בלבד */
+:root{--red:#C8102E;--red2:#a50d26;--ink:#1f2328;--mut:#5f6670;--line:#d9dce1;--bg:#f3f4f6;--card:#fff;--soft:#fbf3f4;--calc:#f1f3f6;--warn:#b45309;color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Segoe UI",sans-serif;font-size:15px;line-height:1.45}
+header{background:#fff;border-bottom:3px solid var(--red);padding:8px 16px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
+header img{height:42px;display:block}
+header h1{font-size:19px;margin:0;color:var(--red);line-height:1.25}
+header .ver{color:var(--mut);font-size:12.5px}
+.tools{margin-inline-start:auto;display:flex;gap:6px;align-items:center}
+.tb{height:34px;min-width:34px;border:1px solid var(--line);background:#fff;border-radius:8px;font:inherit;font-size:17px;line-height:1;cursor:pointer;padding:0 8px;color:var(--ink)}
+.tb:hover{border-color:var(--red);color:var(--red)} .tb.zv{font-size:13px;min-width:52px} .tb.fit{font-size:13px}
+#app{max-width:1280px;margin:0 auto;padding:12px 16px 30px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:12px;position:sticky;top:61px;z-index:15}
+.btn{height:36px;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:8px;padding:0 12px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--red);color:var(--red)}
+.btn.warn{border-color:#e7c7a0;color:var(--warn)}
+.res-chip{margin-inline-start:auto;display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mut)}
+.res-chip b{font-size:17px;color:#fff;background:var(--red);border-radius:8px;padding:4px 12px;direction:ltr;unicode-bidi:isolate}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.card h2{font-size:16.5px;color:var(--red);margin:0}
+.hd{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.hd .sp{flex:1}
+.help{border:none;background:none;color:#0563C1;cursor:pointer;font:inherit;font-size:13px;padding:2px 4px}
+.exp{background:var(--soft);border:1px solid #f0c9cf;border-radius:8px;padding:8px 12px;margin:0 0 10px;font-size:13.5px;color:#333}
+.exp p{margin:3px 0}
+.grid{display:grid;gap:8px 12px;align-items:end}
+.g5{grid-template-columns:2fr 1fr 2fr 1.3fr 1fr}
+.g6{grid-template-columns:repeat(6,1fr)}
+label.fl{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--mut);min-width:0}
+.f{position:relative;display:block;min-width:0}
+.f input,.f select{width:100%;height:36px;border:1px solid #c9cdd3;border-radius:7px;background:#fff;color:var(--ink);font:inherit;font-size:14.5px;padding:0 8px 0 26px;outline:none}
+.f select{appearance:none;-webkit-appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E") no-repeat right 8px center;padding-right:22px;cursor:pointer}
+.f input:focus,.f select:focus{border-color:var(--red);box-shadow:0 0 0 2px rgba(200,16,46,.15)}
+.f input.num{text-align:center;font-variant-numeric:tabular-nums}
+.x{position:absolute;left:3px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:none;border-radius:50%;background:#eceef1;color:#666;font-size:13px;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.x:hover{background:var(--red);color:#fff}
+.calc{height:36px;display:flex;align-items:center;justify-content:center;background:var(--calc);border:1px solid #e1e4e8;border-radius:7px;font-variant-numeric:tabular-nums;font-size:14.5px;white-space:nowrap}
+.calc.gf{background:#efe9f7;border-color:#ddd2ee;color:#4b2a7a}
+.calc.req{font-weight:bold}
+.calc.brk{direction:ltr;font-weight:bold;color:var(--red)}
+.chk{display:flex;align-items:center;gap:8px;height:36px;font-size:14px;color:var(--ink)}
+.chk input{width:18px;height:18px;accent-color:var(--red)}
+/* שורות טבלה */
+.lt{display:flex;flex-direction:column;gap:6px}
+.lr{display:grid;gap:7px;align-items:center}
+.cons .lr{grid-template-columns:minmax(0,1.5fr) 62px 76px 92px 140px 72px 68px 84px minmax(0,1fr) 34px}
+.brds .lr{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 90px 110px 110px 130px 34px}
+.lr.h{font-size:12.5px;color:var(--mut);align-items:end;padding-bottom:2px;border-bottom:1px solid var(--line)}
+.lr .nm{font-weight:bold;font-size:14px;padding-inline-start:4px}
+.del{width:34px;height:36px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;color:#888;font-size:15px}
+.del:hover{border-color:var(--red);color:var(--red)}
+.del[disabled]{visibility:hidden}
+.blds .lr{grid-template-columns:minmax(0,1.6fr) 110px 130px minmax(0,1.2fr) 34px}
+.adds .inl{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:14px}
+.adds .inl .f{width:80px}
+.btn.pri{background:var(--red);border-color:var(--red);color:#fff}.btn.pri:hover{background:var(--red2);color:#fff}
+.rec{font-size:14px;color:var(--mut);align-self:center}
+.rec b{color:var(--red)}
+.hand{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#eef6ee;border:1px solid #bcdcbc;border-radius:10px;padding:8px 12px;margin-bottom:12px;font-size:14px}
+.hand[hidden]{display:none}
+.adds{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.sub{display:flex;gap:16px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:14px}
+.sub b{font-variant-numeric:tabular-nums}
+.ref{overflow-x:auto}
+.rt{width:100%;border-collapse:collapse;font-size:13px}
+.rt th,.rt td{border:1px solid var(--line);padding:5px 7px;text-align:right}
+.rt th{background:#f4f5f7}
+.n{text-align:center!important;font-variant-numeric:tabular-nums}
+.ltr{direction:ltr;unicode-bidi:isolate}
+/* מסמך */
+#docwrap{margin-top:18px}
+#docwrap>h2{font-size:16.5px;color:var(--red);margin:0 0 8px}
+#doc{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:24px 28px;max-width:1000px;margin:0 auto;color:#111;font-size:13px}
+.dh{display:flex;align-items:center;gap:16px;border-bottom:3px solid var(--red);padding-bottom:10px;margin-bottom:12px}
+.dh img{height:50px}
+.dh .dt{flex:1}
+.dh h3{margin:0;color:var(--red);font-size:20px}
+.dh .ds{color:#555;font-size:12.5px}
+#doc h4{color:var(--red);font-size:15px;margin:16px 0 6px;border-bottom:1px solid #e3b3bb;padding-bottom:2px}
+.dtab{width:100%;border-collapse:collapse;font-size:12.5px}
+.dtab th,.dtab td{border:1px solid #cfd3d8;padding:4px 6px;text-align:right;vertical-align:middle}
+.dtab th{background:#e8f2fb;font-weight:bold}
+.dtab tr.tot td{background:#fbf3f4;font-weight:bold}
+.dtab td.bn{font-weight:bold;background:#fafafa}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 18px}
+.kv div{border-bottom:1px dotted #ccc;padding:3px 0;display:flex;gap:6px}
+.kv span{color:#555}
+.big{margin:12px 0 6px;border:2px solid var(--red);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.big .l{font-size:15px;font-weight:bold}
+.big .v{font-size:26px;font-weight:bold;color:var(--red);direction:ltr;unicode-bidi:isolate}
+.big .s{color:#555;font-size:12.5px}
+.alert{color:var(--warn);font-weight:bold;margin:6px 0}
+.notes{font-size:12px;color:#333;margin:0;padding-inline-start:18px}
+.notes li{margin:2px 0}
+.schw{overflow-x:auto;border:1px solid #e3e5e8;border-radius:6px;background:#fff}
+.schw svg,.schw img{display:block;margin:0 auto;max-width:100%;height:auto}
+.ft{margin-top:14px;border-top:1px solid #ddd;padding-top:6px;font-size:11px;color:#777;display:flex;justify-content:space-between}
+.pb{break-before:page;page-break-before:always}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 16px;border-radius:8px;font-size:14px;z-index:50;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media (max-width:1000px){
+ .g5,.g6{grid-template-columns:1fr 1fr} .g5 label:first-child{grid-column:1 / -1}
+ .lr.h{display:none}
+ .cons .lr,.brds .lr,.blds .lr{grid-template-columns:1fr 1fr 1fr;border:1px solid var(--line);border-radius:8px;padding:8px;background:#fcfcfd}
+ .lr>*{min-width:0}
+ .lr .wide{grid-column:1 / -1}
+ .lr [data-l]::before{content:attr(data-l);display:block;font-size:11.5px;color:var(--mut);margin-bottom:2px}
+ .lr .del{grid-column:3;justify-self:end}
+ header{flex-wrap:wrap} header h1{font-size:16px} .tools{margin-inline-start:0}
+ .bar{position:static}
+ .res-chip{margin-inline-start:0;width:100%}
+ #doc{padding:14px}
+ .kv{grid-template-columns:1fr}
+}
+@media (max-width:440px){.cons .lr,.brds .lr,.blds .lr{grid-template-columns:1fr 1fr}.lr .del{grid-column:2}}
+</style>
+</head>
+<body>
+<header>
+ <img src="data:image/png;base64,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" alt="טיקטין">
+ <div><h1>תכנון חשמל זמני לאתר בנייה</h1><div class="ver" id="ver"></div></div>
+ <div class="tools">
+  <button type="button" class="tb" onclick="zoomBy(-1)" title="הקטנת התצוגה">−</button>
+  <button type="button" class="tb zv" id="zv" onclick="zoomSet(1)" title="חזרה לגודל רגיל">100%</button>
+  <button type="button" class="tb" onclick="zoomBy(1)" title="הגדלת התצוגה">+</button>
+  <button type="button" class="tb fit" onclick="zoomFit()" title="התאמת הטופס לרוחב המסך">⤢ התאמה למסך</button>
+ </div>
+</header>
+
+<div id="app">
+ <div class="bar">
+  <button type="button" class="btn" onclick="saveFile()" title="שמירת כל הנתונים לקובץ במחשב">💾 שמירה</button>
+  <button type="button" class="btn" onclick="$('openf').click()" title="פתיחת קובץ שנשמר קודם">📂 פתיחה</button>
+  <input type="file" id="openf" accept=".json" hidden>
+  <button type="button" class="btn warn" id="resetBtn" onclick="resetForm()" title="ניקוי כל השדות לטופס ריק">↺ איפוס טופס</button>
+  <button type="button" class="btn" onclick="loadExample()" title="מילוי הטופס בדוגמה של פרויקט מגדל מגורים">דוגמה</button>
+  <button type="button" class="btn" onclick="exportExcel()" title="הורדת החישוב כקובץ Excel">📊 Excel</button>
+  <button type="button" class="btn" onclick="exportWord()" title="הורדת החישוב כקובץ Word">📝 Word</button>
+  <button type="button" class="btn" onclick="exportPDF()" title="הורדת החישוב כקובץ PDF">📄 PDF</button>
+  <button type="button" class="btn" onclick="sendToIEC()" title="העברת גודל החיבור הזמני המומלץ לטופס פתיחת ההזמנות בחברת החשמל">⚡ לטופס פתיחת ההזמנות</button>
+  <div class="res-chip">סה"כ זרם תכן: <span id="chipI">—</span> · חיבור זמני מומלץ: <b id="chip">—</b></div>
+ </div>
+ <div class="hand" id="hand" hidden><span id="handTxt"></span><button type="button" class="btn pri" onclick="sendToIEC()" id="handBtn">↩ חזרה עם גודל החיבור</button></div>
+
+ <section class="card">
+  <div class="hd"><h2>פרטי הפרויקט</h2></div>
+  <div class="grid g5">
+   <label class="fl">שם הפרויקט<span class="f"><input id="p_name" data-def=""></span></label>
+   <label class="fl">מספר פרויקט<span class="f"><input id="p_num" data-def=""></span></label>
+   <label class="fl">כתובת / יישוב<span class="f"><input id="p_addr" data-def=""></span></label>
+   <label class="fl">ערך<span class="f"><input id="p_by" data-def=""></span></label>
+   <label class="fl">תאריך<span class="f"><input id="p_date" data-def="today"></span></label>
+  </div>
+ </section>
+
+ <section class="card blds">
+  <div class="hd"><h2>הערכה לפי מבנים</h2><span class="sp"></span><button type="button" class="help" onclick="tog('e_bld')">הסבר ▾</button></div>
+  <div class="exp" id="e_bld" hidden>
+   <p>ממלאים את הבניינים באתר – האפליקציה בונה אוטומטית את הלוחות ואת רשימת הצרכנים, ומחזירה המלצה לגודל החיבור הזמני. אחר כך אפשר לערוך כל שורה.</p>
+   <p><b>עד 29 מ'</b> – מנוף אחד לכל זוג בניינים. <b>מעל 29 מ'</b> – לכל בניין מנוף ומעלית חיצונית, וגם משאבת מים להגברת לחץ, משאבה סטטית ופיגום תלוי.</p>
+   <p>לכל בניין: לוח משנה, עמדות עבודה (בניין עד 29 מ' – עמדה לקומה ולפחות 10; מעל 29 מ' – 2 עמדות לקומה) וטיח חוץ. מרתף: לוח משנה חניון, 4 עמדות עבודה ומשאבת ניקוז לכל קומת מרתף. לכל האתר: משרדי אתר, תאורת אתר, מכונת ריתוך, שער ושמירה.</p>
+   <p>הגובה – רצפת קומת המגורים האחרונה. בלי גובה – הערכה לפי 2.9 מ' לקומה.</p>
+  </div>
+  <div class="lt" id="bldRows"></div>
+  <div class="adds">
+   <button type="button" class="btn" onclick="addBld()">+ בניין</button>
+   <label class="fl inl">קומות מרתף<span class="f"><input id="bf" class="num" inputmode="numeric" data-def=""></span></label>
+   <button type="button" class="btn pri" id="genBtn" onclick="genFromBlds()" title="בניית הלוחות והצרכנים לפי הבניינים – מחליף את הטבלאות שלמטה">⚙ יצירת לוחות וצרכנים לפי המבנים</button>
+   <span class="rec" id="recTxt"></span>
+  </div>
+ </section>
+
+ <section class="card">
+  <div class="hd"><h2>נתוני חישוב</h2><span class="sp"></span><button type="button" class="help" onclick="tog('e_net')">הסבר ▾</button></div>
+  <div class="exp" id="e_net" hidden>
+   <p><b>מתח קו ו-cosφ</b> – משמשים להמרת הספק (kW) לזרם כשבוחרים מנוף, מעלית או ציוד מהרשימה: זרם = kW×1000 / (√3 × V × cosφ).</p>
+   <p><b>מקדם ביטחון / רזרבה</b> – מכפיל את סה"כ הזרם המחושב לקבלת זרם התכן, שממנו נבחרים מפסק ההזנה לכל לוח וגודל החיבור.</p>
+   <p><b>מקדם בו-זמניות קבוצתי</b> – נקבע לפי סך היחידות מאותו צרכן בכל הפרויקט, ויורד ככל שיש יותר יחידות (קטן הסיכוי שכולן בשיא יחד). אפשר לבטל אותו – ואז החישוב לפי מקדם השימוש בלבד, כמו בפורמט טיקטין.</p>
+  </div>
+  <div class="grid g6">
+   <label class="fl">מתח קו (V)<span class="f"><input id="v" class="num" inputmode="decimal" data-def="400"></span></label>
+   <label class="fl">מקדם הספק (cosφ)<span class="f"><input id="pf" class="num" inputmode="decimal" data-def="0.85"></span></label>
+   <label class="fl">מקדם ביטחון / רזרבה<span class="f"><input id="rs" class="num" inputmode="decimal" data-def="1.25"></span></label>
+   <label class="fl">מקדם בו-זמניות קבוצתי<span class="chk"><input type="checkbox" id="useG" checked> להחיל לפי כמות</span></label>
+   <span></span><span></span>
+   <label class="fl">מקדם קבוצתי – יחידה אחת<span class="f"><input id="d1" class="num" inputmode="decimal" data-def="1.00"></span></label>
+   <label class="fl">2 עד 3 יחידות<span class="f"><input id="d2" class="num" inputmode="decimal" data-def="0.90"></span></label>
+   <label class="fl">4 עד 5 יחידות<span class="f"><input id="d3" class="num" inputmode="decimal" data-def="0.85"></span></label>
+   <label class="fl">6 יחידות ומעלה<span class="f"><input id="d4" class="num" inputmode="decimal" data-def="0.80"></span></label>
+  </div>
+ </section>
+
+ <section class="card brds">
+  <div class="hd"><h2>לוחות – לוח ראשי ולוחות משנה</h2><span class="sp"></span><button type="button" class="help" onclick="tog('e_brd')">הסבר ▾</button></div>
+  <div class="exp" id="e_brd" hidden>
+   <p>מגדירים את הלוחות באתר (לוח מנוף, לוח משנה חניון, לוח משנה מגדל, בניין 1 וכו') ומאיזה לוח כל אחד מוזן. כל צרכן בטבלת הצרכנים משויך ללוח – והסכומים לכל לוח מחושבים אוטומטית, כולל לוחות המשנה שמוזנים ממנו.</p>
+   <p>מפסק ההזנה המומלץ = המדרגה התקנית שמעל זרם התכן של הלוח (סה"כ זרם × מקדם הרזרבה).</p>
+  </div>
+  <div class="lt" id="brdRows"></div>
+  <div class="adds"><button type="button" class="btn" onclick="addBoard()">+ לוח משנה</button></div>
+ </section>
+
+ <section class="card cons">
+  <div class="hd"><h2>צרכני חשמל זמני – התארגנות אתר</h2><span class="sp"></span><button type="button" class="help" onclick="tog('e_cons')">הסבר ▾</button></div>
+  <div class="exp" id="e_cons" hidden>
+   <p>ממלאים את כל הצרכנים בהתארגנות האתר: כמות, זרם ליחידה, מפסק נדרש בלוח המזין, מאיזה לוח מוזן, מקדם שימוש (כמה יעבוד הצרכן בפועל, 0.0 עד 1.0) והערות.</p>
+   <p>בשם הצרכן אפשר לבחור מהרשימה (מנופים ומעליות לפי דגם, עמדות עבודה, משאבות ועוד) – הזרם, המפסק ומקדם השימוש מתמלאים אוטומטית וניתן לשנות.</p>
+   <p><b>סה"כ זרם מחושב</b> = כמות × זרם ליחידה × מקדם שימוש × מקדם קבוצתי. אותו צרכן במבנים שונים – שורה נפרדת לכל לוח.</p>
+  </div>
+  <datalist id="presets"></datalist>
+  <div class="lt" id="consRows"></div>
+  <div class="adds"><button type="button" class="btn" onclick="addCons()">+ צרכן</button></div>
+  <div class="sub"><span>סה"כ זרם מחושב: <b id="sumA">0 A</b></span><span>זרם תכן לאחר רזרבה: <b id="sumD">0 A</b></span></div>
+ </section>
+
+ <section class="card">
+  <div class="hd"><h2>טבלאות עזר – מנופים ומעליות</h2><span class="sp"></span><button type="button" class="help" onclick="tog('e_ref')">הצגה ▾</button></div>
+  <div id="e_ref" hidden>
+   <div class="exp">
+    <p><b>מנוף פטיש / ראש-חתול (Hammerhead)</b> – משולש בראש התורן שממנו נמתחים כבלים לזרוע. בנייה כללית ותעשייה, טווח גדול ועומסים כבדים.</p>
+    <p><b>מנוף שטוח-ראש (Flat-top)</b> – ללא ראש-חתול, הזרוע וזרוע-הנגד שטוחות. בנייני מגורים – הנפוץ ביותר.</p>
+    <p><b>מנוף זרוע מתרוממת (Luffing jib)</b> – הזרוע עולה ויורדת בזווית; לבנייה עירונית צפופה ומגדלים. כולל מנוע נוסף להרמת הזרוע.</p>
+    <p><b>מעלית חיצונית – תא בודד / תא כפול (Twin)</b> – מסילה וגלגל שיניים על תורן מעוגן לבניין. תא כפול – הספק כפול בקירוב.</p>
+    <p>הספק כולל וחיבור מומלץ – אומדן הנדסי; לאמת מול לוחית הנתונים של הציוד. זרם ההתנעה של מנוע ההרמה גבוה מהזרם הרציף (מבטח בעקומה D).</p>
+   </div>
+   <div class="ref" id="refTables"></div>
+  </div>
+ </section>
+
+ <div id="docwrap">
+  <h2>מסמך תכנון החשמל הזמני</h2>
+  <div id="doc"></div>
+ </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="estimate.js"></script>
+<script>
+const VER='1', VDATE='09.11.2026', LOGO=document.querySelector('header img').src;
+const APPS_BASE='https://tiktiny.github.io/', IEC_URL=APPS_BASE+'iec-orders/';
+const $=id=>document.getElementById(id);
+$('ver').textContent='גרסה '+VER+' · עודכן '+VDATE;
+const BRK=['3X16','3X20','3X25','3X32','3X40','3X50','3X63','3X80','3X100','3X125','3X160','3X200','3X250','3X315','3X400','3X500','3X630','3X800','1X16','1X25','1X32'];
+
+// ---------- מצב ----------
+let uid=1;const nid=()=>'b'+(uid++);
+const fixUid=()=>{uid=1+Math.max(0,...S.boards.map(b=>parseInt(String(b.id).slice(1))||0))};
+function emptyState(){return {blds:[{name:'',floors:'',height:''}],bf:'',boards:[{id:'b0',n:'לוח ראשי',p:''}],rows:[{n:'',q:'',a:'',brk:'',b:'b0',u:'',note:''}]}}
+function exampleState(){
+ const blds=[{name:'בניין A',floors:24,height:72},{name:'בניין B',floors:8,height:''},{name:'בניין C',floors:8,height:''}];
+ return Object.assign({blds,bf:2},TTC.generate({buildings:blds,basementFloors:2},params()));
+}
+let S=null;
+
+const num=v=>{const x=parseFloat(String(v??'').replace(',','.'));return isFinite(x)?x:0};
+const f1=x=>(Math.round(x*10)/10).toLocaleString('he-IL',{maximumFractionDigits:1});
+const f2=x=>(Math.round(x*100)/100).toFixed(2);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function today(){const d=new Date();return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear()}
+function params(){return {V:num($('v').value)||400,PF:num($('pf').value)||0.85,RS:num($('rs').value)||1,useG:$('useG').checked,G:['d1','d2','d3','d4'].map(id=>num($(id).value))}}
+
+// ---------- שדות קבועים ----------
+const FIELDS=['p_name','p_num','p_addr','p_by','p_date','v','pf','rs','d1','d2','d3','d4','bf'];
+function defOf(id){const d=$(id).dataset.def;return d==='today'?today():d}
+function wire(inp,onclr){
+ const x=document.createElement('button');x.type='button';x.className='x';x.textContent='×';x.title='ניקוי השדה';x.tabIndex=-1;
+ x.onclick=()=>{inp.value='';if(onclr)onclr(inp);inp.dispatchEvent(new Event('input',{bubbles:true}));inp.dispatchEvent(new Event('change',{bubbles:true}));inp.focus()};
+ inp.parentNode.appendChild(x);
+ if(inp.tagName==='INPUT'){ // הקשה ראשונה מחליפה את הערך הקיים
+  inp.autocomplete='off';
+  inp.addEventListener('focus',()=>setTimeout(()=>{try{inp.select()}catch(e){}},0));
+  inp.addEventListener('mouseup',e=>{if(!inp.dataset.sel){e.preventDefault();inp.dataset.sel='1'}});
+  inp.addEventListener('blur',()=>{inp.dataset.sel=''});
+ }
+}
+FIELDS.forEach(id=>{const el=$(id);el.value=defOf(id);wire(el);el.addEventListener('input',()=>{if(id==='bf'&&S)S.bf=el.value;calc()})});
+$('useG').addEventListener('change',calc);
+$('presets').innerHTML=TTC.PRESETS.map(p=>`<option value="${esc(p[0])}">`).join('');
+
+// ---------- בניינים ----------
+function bldTall(b){return TTC.isTall({floors:b.floors,height:b.height})}
+function addBld(){S.blds.push({name:'',floors:'',height:''});drawBlds();calc();const l=$('bldRows').lastElementChild.querySelector('input');if(l)l.focus()}
+function delBld(i){S.blds.splice(i,1);if(!S.blds.length)S.blds.push({name:'',floors:'',height:''});drawBlds();calc()}
+function drawBlds(){
+ const h=`<div class="lr h"><span>שם הבניין</span><span>קומות מעל הקרקע</span><span>גובה קומת מגורים אחרונה [מ']</span><span>סיווג לחיבור הזמני</span><span></span></div>`;
+ $('bldRows').innerHTML=h+S.blds.map((b,i)=>`<div class="lr">
+  <span class="f wide" data-l="שם הבניין"><input data-k="name" data-i="${i}" value="${esc(b.name)}" placeholder="בניין ${String.fromCharCode(65+i)}"></span>
+  <span class="f" data-l="קומות מעל הקרקע"><input class="num" inputmode="numeric" data-k="floors" data-i="${i}" value="${esc(b.floors)}"></span>
+  <span class="f" data-l="גובה [מ']"><input class="num" inputmode="decimal" data-k="height" data-i="${i}" value="${esc(b.height)}" title="גובה רצפת קומת המגורים האחרונה. ריק – לפי 2.9 מ' לקומה"></span>
+  <div data-l="סיווג"><div class="calc" id="bt_${i}">—</div></div>
+  <button type="button" class="del" onclick="delBld(${i})" title="מחיקת הבניין">🗑</button></div>`).join('');
+ $('bldRows').querySelectorAll('input').forEach(el=>{wire(el);el.addEventListener('input',()=>{S.blds[+el.dataset.i][el.dataset.k]=el.value;calc()})});
+}
+function bldInput(){return {buildings:S.blds.filter(b=>String(b.name).trim()||num(b.floors)||num(b.height)).map((b,i)=>({name:String(b.name).trim()||('בניין '+String.fromCharCode(65+i)),floors:b.floors,height:b.height})),basementFloors:S.bf}}
+let gT;
+function genFromBlds(force){
+ const inp=bldInput();if(!inp.buildings.length){toast('יש למלא לפחות בניין אחד');return}
+ const used=S.rows.some(r=>r.n||num(r.q)),b=$('genBtn');
+ if(used&&!force&&!b.dataset.c){b.dataset.c='1';b.textContent='לחיצה נוספת – הטבלאות שלמטה יוחלפו';gT=setTimeout(()=>{b.dataset.c='';b.textContent='⚙ יצירת לוחות וצרכנים לפי המבנים'},3500);return}
+ clearTimeout(gT);b.dataset.c='';b.textContent='⚙ יצירת לוחות וצרכנים לפי המבנים';
+ const g=TTC.generate(inp,params());S.boards=g.boards;S.rows=g.rows;fixUid();drawBoards();drawCons();calc();toast('הלוחות והצרכנים נבנו לפי המבנים');
+}
+
+// ---------- לוחות ----------
+function boardName(id){const b=S.boards.find(x=>x.id===id);return b?b.n||'לוח ללא שם':'—'}
+function addBoard(){S.boards.push({id:nid(),n:'',p:'b0'});drawBoards();drawCons();calc();const l=$('brdRows').lastElementChild.querySelector('input');if(l)l.focus()}
+function delBoard(i){const id=S.boards[i].id;S.boards.splice(i,1);
+ S.boards.forEach(b=>{if(b.p===id)b.p='b0'});S.rows.forEach(r=>{if(r.b===id)r.b='b0'});drawBoards();drawCons();calc()}
+const optsB=(sel,ex)=>S.boards.filter(x=>x.id!==ex).map(x=>`<option value="${x.id}"${x.id===sel?' selected':''}>${esc(x.n||'לוח ללא שם')}</option>`).join('');
+function drawBoards(){
+ const h=`<div class="lr h"><span>שם הלוח</span><span>מוזן מלוח</span><span>מס' צרכנים</span><span>סה"כ זרם [A]</span><span>זרם תכן [A]</span><span>מפסק הזנה מומלץ</span><span></span></div>`;
+ $('brdRows').innerHTML=h+S.boards.map((b,i)=>{
+  const par=i===0?`<div data-l="מוזן מ"><div class="calc">חיבור חברת החשמל</div></div>`:
+   `<span class="f" data-l="מוזן מלוח"><select data-k="bp" data-i="${i}">${optsB(b.p,b.id)}</select></span>`;
+  return `<div class="lr"><span class="f wide" data-l="שם הלוח"><input data-k="bn" data-i="${i}" value="${esc(b.n)}" placeholder="שם הלוח"></span>${par}
+   <div data-l="מס' צרכנים"><div class="calc" id="bc_${b.id}">0</div></div>
+   <div data-l="סה&quot;כ זרם [A]"><div class="calc req" id="ba_${b.id}">0</div></div>
+   <div data-l="זרם תכן [A]"><div class="calc" id="bd_${b.id}">0</div></div>
+   <div data-l="${i===0?'חיבור זמני מומלץ':'מפסק הזנה מומלץ'}"><div class="calc brk" id="bb_${b.id}">—</div></div>
+   <button type="button" class="del" onclick="delBoard(${i})" title="מחיקת הלוח" ${i===0?'disabled':''}>🗑</button></div>`}).join('');
+ $('brdRows').querySelectorAll('input,select').forEach(el=>{wire(el,e=>{if(e.tagName==='SELECT')e.value='b0'});
+  el.addEventListener('input',onBoardEdit);el.addEventListener('change',onBoardEdit)});
+}
+function onBoardEdit(e){const el=e.target,b=S.boards[+el.dataset.i];
+ if(el.dataset.k==='bn'){b.n=el.value;refreshBoardSelects()}else{b.p=el.value||'b0';if(cycle(b.id)){b.p='b0';el.value='b0';toast('לא ניתן להזין לוח מלוח שמוזן ממנו')}}
+ calc()}
+function cycle(id){let cur=S.boards.find(b=>b.id===id),n=0;while(cur&&cur.p&&n<50){if(cur.p===id)return true;cur=S.boards.find(b=>b.id===cur.p);n++}return false}
+function refreshBoardSelects(){
+ document.querySelectorAll('select[data-k="rb"]').forEach(s=>{s.innerHTML=optsB(S.rows[+s.dataset.i].b)});
+ document.querySelectorAll('select[data-k="bp"]').forEach(s=>{const b=S.boards[+s.dataset.i];s.innerHTML=optsB(b.p,b.id)});
+}
+
+// ---------- צרכנים ----------
+function addCons(){S.rows.push({n:'',q:1,a:'',brk:'',b:S.boards[0].id,u:'',note:''});drawCons();calc();const l=$('consRows').lastElementChild.querySelector('input');if(l)l.focus()}
+function delCons(i){S.rows.splice(i,1);drawCons();calc()}
+function drawCons(){
+ const h=`<div class="lr h"><span>צרכן</span><span>כמות</span><span>זרם ליח' [A]</span><span>מפסק</span><span>מוזן מלוח</span><span>מקדם שימוש</span><span>מקדם קבוצתי</span><span>סה"כ זרם [A]</span><span>הערות</span><span></span></div>`;
+ $('consRows').innerHTML=h+S.rows.map((r,i)=>`<div class="lr">
+  <span class="f wide" data-l="צרכן"><input data-k="n" data-i="${i}" list="presets" value="${esc(r.n)}" placeholder="בחירה מהרשימה או הקלדה" title="בחירה מהרשימה ממלאת זרם, מפסק ומקדם שימוש"></span>
+  <span class="f" data-l="כמות"><input class="num" inputmode="decimal" data-k="q" data-i="${i}" value="${r.q}"></span>
+  <span class="f" data-l="זרם ליח' [A]"><input class="num" inputmode="decimal" data-k="a" data-i="${i}" value="${r.a}"></span>
+  <span class="f" data-l="מפסק"><select data-k="brk" data-i="${i}" title="מפסק נדרש עבור הצרכן בלוח המזין"><option value=""></option>${BRK.map(b=>`<option${b===r.brk?' selected':''}>${b}</option>`).join('')}${r.brk&&!BRK.includes(r.brk)?`<option selected>${esc(r.brk)}</option>`:''}</select></span>
+  <span class="f" data-l="מוזן מלוח"><select data-k="rb" data-i="${i}">${optsB(r.b)}</select></span>
+  <span class="f" data-l="מקדם שימוש"><input class="num" inputmode="decimal" data-k="u" data-i="${i}" value="${r.u===''?'':f2(num(r.u))}" title="כמה יעבוד הצרכן בפועל, 0.0 עד 1.0"></span>
+  <div data-l="מקדם קבוצתי"><div class="calc gf" id="g_${i}" title="נקבע אוטומטית לפי סך היחידות מאותו צרכן">1.00</div></div>
+  <div data-l="סה&quot;כ זרם [A]"><div class="calc req" id="t_${i}">0</div></div>
+  <span class="f wide" data-l="הערות"><input data-k="note" data-i="${i}" value="${esc(r.note)}"></span>
+  <button type="button" class="del" onclick="delCons(${i})" title="מחיקת הצרכן">🗑</button></div>`).join('');
+ $('consRows').querySelectorAll('input,select').forEach(el=>{
+  wire(el,e=>{if(e.dataset.k==='rb')e.value=S.boards[0].id});
+  el.addEventListener('input',onConsEdit);el.addEventListener('change',onConsEdit)});
+}
+function onConsEdit(e){
+ const el=e.target,i=+el.dataset.i,r=S.rows[i],k=el.dataset.k;
+ if(k==='n'){r.n=el.value;
+  const p=TTC.preset(el.value);
+  if(p&&e.type==='input'){const row=el.closest('.lr'),P=params();
+   r.a=p[1]!=null?p[1]:Math.round(TTC.kw2a(p[4],P.V,P.PF)*10)/10;r.brk=p[2];r.u=p[3];if(r.q===''||r.q===0)r.q=1;
+   row.querySelector('[data-k="a"]').value=r.a;row.querySelector('[data-k="u"]').value=f2(r.u);row.querySelector('[data-k="q"]').value=r.q;
+   row.querySelector('[data-k="brk"]').value=r.brk;}
+ }
+ else if(k==='rb')r.b=el.value||S.boards[0].id;
+ else if(k==='brk'||k==='note')r[k]=el.value;
+ else r[k]=el.value===''?'':num(el.value);
+ calc();
+}
+function drawAll(){drawBlds();drawBoards();drawCons()}
+
+// ---------- חישוב ----------
+let R;
+function calc(){
+ if(!S)return;
+ R=TTC.compute(S,params());R.V=R.P.V;R.RS=R.P.RS;
+ S.blds.forEach((b,i)=>{const e=$('bt_'+i);if(e)e.textContent=(String(b.name).trim()||num(b.floors)||num(b.height))?(bldTall(b)?'מעל 29 מ\' – מנוף ומעלית':'עד 29 מ\' – מנוף לזוג'):'—'});
+ const rc=TTC.recommend(bldInput(),params());
+ $('recTxt').innerHTML=bldInput().buildings.length?`לפי המבנים: <b class="ltr">${rc.size}A</b> · ${rc.summary||''}`:'';
+ R.rows.forEach((r,i)=>{const g=$('g_'+i),t=$('t_'+i);if(g)g.textContent=f2(r.g);if(t)t.textContent=f1(r.t)});
+ R.boards.forEach(b=>{const s=(id,v)=>{const e=$(id);if(e)e.textContent=v};
+  s('bc_'+b.id,b.nc);s('ba_'+b.id,f1(b.a));s('bd_'+b.id,Math.round(b.d));s('bb_'+b.id,b.a>0?'3X'+b.brk:'—')});
+ $('sumA').textContent=f1(R.TA)+' A';$('sumD').textContent=Math.round(R.TD)+' A';
+ $('chipI').textContent=Math.round(R.TD)+' A';$('chip').textContent=R.TA>0?R.size+'A':'—';
+ renderDoc();autosave();
+}
+
+// ---------- סכמה (SVG) ----------
+function schemeSVG(){
+ const r=R,BW=190,GAP=22,LH=15,HB=46,PER=4,VG=46;
+ const kids=id=>r.boards.filter(b=>b.p===id&&b.id!==id);
+ const lines=id=>r.rows.filter(x=>x.b===id&&(x.n||x.q)).map(c=>`${c.q>1?c.q+' × ':''}${c.n||'צרכן'}${c.brk?'  ('+c.brk+')':''}`);
+ const tr=(s,n)=>s.length>n?s.slice(0,n-1)+'…':s;
+ const SZ={};
+ const own=b=>HB+4+(lines(b.id).length?lines(b.id).length*LH+8:0);
+ function meas(b,d){if(d>20)return {w:BW,h:own(b),rows:[]};const k=kids(b.id),rows=[];for(let i=0;i<k.length;i+=PER)rows.push(k.slice(i,i+PER));
+  let w=BW,h=own(b);rows.forEach(row=>{const ms=row.map(c=>meas(c,d+1));const rw=ms.reduce((s,m)=>s+m.w,0)+GAP*(row.length-1);w=Math.max(w,rw);h+=VG+Math.max(...ms.map(m=>m.h))});
+  SZ[b.id]={w,h,rows};return SZ[b.id]}
+ const root=r.boards[0],M=meas(root,0);
+ const out=[];
+ function draw(b,xR,y,depth){
+  const s=SZ[b.id],cx=xR-s.w/2,isMain=depth===0,L=lines(b.id);
+  const fill=isMain?'#C8102E':'#fff',tc=isMain?'#fff':'#C8102E';
+  out.push(`<rect x="${cx-BW/2}" y="${y}" width="${BW}" height="${HB}" rx="6" fill="${fill}" stroke="#C8102E" stroke-width="1.6"/>`);
+  out.push(`<text x="${cx}" y="${y+19}" text-anchor="middle" font-size="12.5" font-weight="bold" fill="${tc}">${esc(tr(b.n||'לוח',30))}</text>`);
+  out.push(`<text x="${cx}" y="${y+36}" text-anchor="middle" font-size="12" fill="${tc}">${b.a>0?(isMain?'חיבור זמני ':'הזנה ')+'3X'+b.brk+'A':'—'}</text>`);
+  let yy=y+HB+4;
+  if(L.length){const h=L.length*LH+8;
+   out.push(`<rect x="${cx-BW/2}" y="${yy}" width="${BW}" height="${h}" fill="#f7f8fa" stroke="#d5d8dc"/>`);
+   L.forEach((t,j)=>out.push(`<text x="${cx+BW/2-6}" y="${yy+15+j*LH}" text-anchor="start" font-size="11" fill="#222">${esc(tr(t,34))}</text>`));
+   yy+=h;}
+  if(!s.rows.length)return;
+  // קו עמוד מהלוח אל כל שורות לוחות המשנה
+  const trunk=xR-s.w-8;let yRow=yy;const busYs=[];
+  s.rows.forEach(row=>{const ws=row.map(c=>SZ[c.id].w),rw=ws.reduce((a,b)=>a+b,0)+GAP*(row.length-1);
+   let x=xR-(s.w-rw)/2;const bus=yRow+VG/2,cxs=[];
+   row.forEach(c=>{cxs.push(x-SZ[c.id].w/2);draw(c,x,yRow+VG,depth+1);x-=SZ[c.id].w+GAP});
+   const lo=Math.min(...cxs,trunk),hi=Math.max(...cxs,trunk);
+   out.push(`<line x1="${lo}" y1="${bus}" x2="${hi}" y2="${bus}" stroke="#555" stroke-width="1.4"/>`);
+   cxs.forEach(c=>out.push(`<line x1="${c}" y1="${bus}" x2="${c}" y2="${yRow+VG}" stroke="#555" stroke-width="1.4"/>`));
+   busYs.push(bus);yRow+=VG+Math.max(...row.map(c=>SZ[c.id].h));});
+  out.push(`<path d="M${cx-BW/2} ${y+HB/2} H${trunk} V${busYs[busYs.length-1]}" fill="none" stroke="#555" stroke-width="1.4"/>`);
+ }
+ const top=50,pad=30;
+ draw(root,M.w+pad,top,0);
+ const mx=M.w/2+pad;
+ out.push(`<text x="${mx}" y="18" text-anchor="middle" font-size="12" fill="#555">חיבור חברת החשמל</text>`);
+ out.push(`<line x1="${mx}" y1="24" x2="${mx}" y2="${top}" stroke="#555" stroke-width="1.6" stroke-dasharray="4 3"/>`);
+ const Wd=M.w+pad*2,Hd=top+M.h+12;
+ return `<svg xmlns="http://www.w3.org/2000/svg" width="${Wd}" height="${Hd}" viewBox="0 0 ${Wd} ${Hd}" font-family="Arial, sans-serif" direction="rtl"><rect width="100%" height="100%" fill="#fff"/>${out.join('')}</svg>`;
+}
+
+// ---------- מסמך ----------
+const pv=id=>esc($(id).value);
+function renderDoc(){
+ const r=R,used=r.rows.filter(x=>x.n||x.q),G=$('useG').checked,bi=bldInput();
+ const bT=bi.buildings.length?`<h4>מבנים באתר</h4><table class="dtab"><tr><th>בניין</th><th>קומות מעל הקרקע</th><th>גובה קומת מגורים אחרונה [מ']</th><th>סיווג</th></tr>`+
+  bi.buildings.map(b=>`<tr><td>${esc(b.name)}</td><td class="n">${esc(b.floors)}</td><td class="n">${esc(b.height)||'—'}</td><td>${TTC.isTall(b)?'מעל 29 מ\' – מנוף ומעלית חיצונית':'עד 29 מ\' – מנוף לזוג בניינים'}</td></tr>`).join('')+
+  (num(S.bf)?`<tr><td>מרתף</td><td class="n">${esc(S.bf)} קומות מרתף</td><td></td><td>לוח משנה חניון</td></tr>`:'')+`</table>`:'';
+ const consT=`<table class="dtab"><tr><th>צרכן</th><th>כמות</th><th>זרם ליח' [A]</th><th>מפסק</th><th>מוזן מלוח</th><th>הערות</th><th>מקדם שימוש</th>${G?'<th>מקדם קבוצתי</th>':''}<th>סה"כ זרם מחושב [A]</th></tr>`+
+  used.map(c=>`<tr><td>${esc(c.n)}</td><td class="n">${c.q}</td><td class="n">${c.a}</td><td class="n ltr">${esc(c.brk)}</td><td>${esc(c.bn)}</td><td>${esc(c.note)}</td><td class="n">${f2(c.u)}</td>${G?`<td class="n">${f2(c.g)}</td>`:''}<td class="n">${f1(c.t)}</td></tr>`).join('')+
+  `<tr class="tot"><td colspan="${G?8:7}">סה"כ זרם נדרש לצריכה [A]</td><td class="n">${f1(r.TA)}</td></tr></table>`;
+ const brdT=`<table class="dtab"><tr><th>לוח</th><th>מוזן מלוח</th><th>צרכן</th><th>כמות</th><th>זרם עבודה [A]</th><th>מקדם שימוש</th><th>סה"כ [A]</th><th>סה"כ ללוח [A]</th><th>מפסק הזנה מומלץ</th></tr>`+
+  r.boards.map((b,bi2)=>{const cs=used.filter(c=>c.b===b.id),subs=r.boards.filter(x=>x.p===b.id);
+   const items=cs.map(c=>[esc(c.n),c.q,c.a,f2(c.u),f1(c.t)]).concat(subs.map(s=>['<i>'+esc(s.n||'לוח')+' – לוח משנה</i>','','','',f1(s.a)]));
+   if(!items.length)items.push(['—','','','','0']);
+   const n=items.length,par=bi2===0?'חיבור חברת החשמל':esc(boardName(b.p));
+   return items.map((it,j)=>`<tr>${j===0?`<td class="bn" rowspan="${n}">${esc(b.n||'לוח')}</td><td rowspan="${n}">${par}</td>`:''}<td>${it[0]}</td><td class="n">${it[1]}</td><td class="n">${it[2]}</td><td class="n">${it[3]}</td><td class="n">${it[4]}</td>${j===0?`<td class="n bn" rowspan="${n}">${f1(b.a)}</td><td class="n bn ltr" rowspan="${n}">${b.a>0?'3X'+b.brk:'—'}</td>`:''}</tr>`).join('')}).join('')+`</table>`;
+ $('doc').innerHTML=`
+ <div class="dh"><img src="${LOGO}" alt="טיקטין"><div class="dt"><h3>תכנון חשמל זמני לאתר בנייה</h3><div class="ds">טיקטין תכנון חשמל (2003) בע״מ</div></div></div>
+ <div class="kv">
+  <div><span>פרויקט:</span><b>${pv('p_name')||'—'}</b></div><div><span>מספר פרויקט:</span><b>${pv('p_num')||'—'}</b></div><div><span>כתובת / יישוב:</span><b>${pv('p_addr')||'—'}</b></div>
+  <div><span>ערך:</span><b>${pv('p_by')||'—'}</b></div><div><span>תאריך:</span><b>${pv('p_date')||'—'}</b></div><div><span>מתח קו:</span><b>${r.V} V</b></div>
+ </div>
+ <div class="big"><span class="l">גודל חיבור זמני מומלץ:</span><span class="v">${r.TA>0?r.size+'A':'—'}</span><span class="s">זרם תכן ${Math.round(r.TD)}A (סה"כ ${f1(r.TA)}A × ${f2(r.RS)}) · ${r.cranes} מנופים · ${r.hoists} מעליות חיצוניות</span></div>
+ ${r.over?'<div class="alert">זרם התכן גבוה מ-910A – מעל החיבור הזמני הגדול בחברת החשמל. לבדוק חלוקה לשני חיבורים או חיבור במתח גבוה.</div>':''}
+ ${bT}
+ <h4>תכנון צרכני חשמל זמני</h4>${consT}
+ <h4>חלוקה ללוחות משנה</h4>${brdT}
+ <h4 class="pb">סכמת חשמל זמני</h4>
+ <div class="schw" id="schw">${schemeSVG()}</div>
+ <h4>הערות</h4>
+ <ul class="notes">
+  <li>סה"כ זרם מחושב = כמות × זרם ליחידה × מקדם שימוש${G?' × מקדם בו-זמניות קבוצתי (לפי סך היחידות מאותו צרכן)':''}.</li>
+  <li>מפסק ההזנה לכל לוח – המדרגה התקנית שמעל זרם התכן של הלוח; גודל החיבור הזמני – מגדלי החיבור הזמני בחברת החשמל (3X40 עד 3X910).</li>
+  <li>יש לוודא זמינות מול חברת החשמל ולהתאים מבטח וכבל. זרם ההתנעה של מנופים ומעליות נבדק בנפרד (מבטח בעקומה D).</li>
+  <li>זרמים של מנופים ומעליות לפי דגם – אומדן לפי הספק מותקן; לאמת מול לוחית הנתונים של הציוד.</li>
+ </ul>
+ <div class="ft"><span>טיקטין תכנון חשמל (2003) בע״מ</span><span>תכנון חשמל זמני · גרסה ${VER}</span></div>`;
+}
+function refTables(){
+ $('refTables').innerHTML=`<table class="rt"><tr><th>דגם המנוף</th><th>סוג</th><th>עומס מרבי</th><th>גובה וו מרבי</th><th>הספק מותקן כולל (kW)</th><th>חיבור מומלץ</th></tr>`+
+ TTC.CRANES.map(c=>`<tr><td class="ltr">${c[0]}</td><td>${c[1]}</td><td>${c[2]}</td><td>${c[3]}</td><td class="n">~${c[4]}</td><td class="n ltr">${c[5]}A</td></tr>`).join('')+`</table><br>
+ <table class="rt"><tr><th>דגם המעלית</th><th>סוג</th><th>תצורת מנועים</th><th>הספק מותקן כולל (kW)</th><th>חיבור מומלץ</th></tr>`+
+ TTC.HOISTS.map(c=>`<tr><td class="ltr">${c[0]}</td><td>${c[1]}</td><td class="ltr">${c[2]}</td><td class="n">${c[3]}</td><td class="n ltr">${c[4]}A</td></tr>`).join('')+`</table>`;
+}
+
+// ---------- כלים ----------
+function tog(id){const e=$(id);e.hidden=!e.hidden}
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2400)}
+function fname(ext){const p=($('p_name').value||'').trim().replace(/[\\/:*?"<>|]/g,'');return 'חשמל זמני'+(p?' - '+p:'')+'.'+ext}
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},800)}
+function stateObj(){const o={app:'temp-conn',ver:VER,fields:{},useG:$('useG').checked,blds:S.blds,bf:S.bf,boards:S.boards,rows:S.rows};FIELDS.forEach(id=>o.fields[id]=$(id).value);return o}
+function applyState(o){if(!o||!o.boards)return;FIELDS.forEach(id=>{if(o.fields&&id in o.fields)$(id).value=o.fields[id]});$('useG').checked=o.useG!==false;
+ S={blds:o.blds&&o.blds.length?o.blds:[{name:'',floors:'',height:''}],bf:o.bf??$('bf').value,boards:o.boards,rows:o.rows||[]};$('bf').value=S.bf;fixUid();drawAll();calc()}
+function autosave(){try{localStorage.setItem('tiktin-temp-conn',JSON.stringify(stateObj()))}catch(e){}}
+function saveFile(){autosave();dl(new Blob([JSON.stringify(stateObj(),null,1)],{type:'application/json'}),fname('json'));toast('הנתונים נשמרו לקובץ')}
+$('openf').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{applyState(JSON.parse(rd.result));toast('הקובץ נפתח')}catch(err){toast('הקובץ אינו קובץ שמירה של הטופס')}};rd.readAsText(f);e.target.value=''});
+let rT;
+function resetForm(){const b=$('resetBtn');
+ if(!b.dataset.c){b.dataset.c='1';b.textContent='לחיצה נוספת לאישור האיפוס';rT=setTimeout(()=>{b.dataset.c='';b.textContent='↺ איפוס טופס'},3000);return}
+ clearTimeout(rT);b.dataset.c='';b.textContent='↺ איפוס טופס';
+ FIELDS.forEach(id=>$(id).value=defOf(id));$('useG').checked=true;S=emptyState();fixUid();drawAll();calc();toast('הטופס אופס')}
+function loadExample(){S=exampleState();$('bf').value=S.bf;fixUid();drawAll();calc();toast('נטענה דוגמה – בניין רב קומות ושני בניינים נמוכים')}
+
+// ---------- מעבר בין אפליקציות (טופס פתיחת ההזמנות) ----------
+let HAND=null;
+function sendToIEC(){
+ if(!R||!(R.TA>0)){toast('אין עדיין גודל חיבור – יש למלא מבנים או צרכנים');return}
+ autosave();
+ const ret=(HAND&&HAND.returnUrl)||IEC_URL;
+ try{localStorage.setItem('tiktin_handoff',JSON.stringify({to:'iec-orders',ts:Date.now(),fromTitle:'תכנון חשמל זמני לאתר בנייה',returnUrl:location.href.split('?')[0].split('#')[0],state:{temp:{size:R.size}}}))}
+ catch(e){toast('לא ניתן להעביר את הנתונים בדפדפן זה');return}
+ location.href=ret.split('?')[0].split('#')[0]+'?handoff=1';
+}
+function readHandoff(){
+ if(!/[?&]handoff=1/.test(location.search))return false;
+ let h=null;try{h=JSON.parse(localStorage.getItem('tiktin_handoff')||'null')}catch(e){}
+ if(!h||h.to!=='temp-conn')return false;
+ try{localStorage.removeItem('tiktin_handoff')}catch(e){}
+ HAND=h;const st=h.state||{},P=st.project||{};
+ if(P.name!=null)$('p_name').value=P.name;if(P.num!=null)$('p_num').value=P.num;if(P.city!=null||P.addr!=null)$('p_addr').value=P.addr||P.city||'';
+ const L=(st.buildings||st.list||[]).map((b,i)=>({name:b.name||b.building||('בניין '+String.fromCharCode(65+i)),floors:b.floors??'',height:b.height??''}));
+ const bf=st.basementFloors!=null?st.basementFloors:(st.parking&&(st.parking.has||st.parking===true)?2:'');
+ S={blds:L.length?L:[{name:'',floors:'',height:''}],bf,boards:[{id:'b0',n:'לוח ראשי',p:''}],rows:[]};$('bf').value=bf;
+ if(L.length){const g=TTC.generate({buildings:L,basementFloors:bf},params());S.boards=g.boards;S.rows=g.rows}
+ fixUid();drawAll();calc();
+ $('hand').hidden=false;$('handTxt').textContent='הנתונים הועברו מ'+(h.fromTitle||'טופס פתיחת ההזמנות')+' – הלוחות והצרכנים נבנו לפי המבנים. אפשר לערוך ולחזור עם גודל החיבור.';
+ $('handBtn').textContent='↩ חזרה ל'+(h.fromTitle||'טופס פתיחת ההזמנות')+' עם גודל החיבור';
+ return true;
+}
+
+// ---------- ייצוא ----------
+function svgToPng(){return new Promise(res=>{const svg=schemeSVG();const m=svg.match(/width="([\d.]+)" height="([\d.]+)"/);const w=+m[1],h=+m[2],sc=2;
+ const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=w*sc;c.height=h*sc;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0,c.width,c.height);res({url:c.toDataURL('image/png'),w,h})};
+ img.onerror=()=>res(null);img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)})}
+function exportExcel(){
+ if(!window.XLSX){toast('ייצוא Excel דורש חיבור לאינטרנט');return}
+ const r=R,used=r.rows.filter(x=>x.n||x.q),wb=XLSX.utils.book_new(),G=$('useG').checked;
+ const head=[['תכנון חשמל זמני לאתר בנייה – טיקטין תכנון חשמל (2003) בע״מ'],['פרויקט',$('p_name').value,'מספר פרויקט',$('p_num').value,'כתובת',$('p_addr').value],['ערך',$('p_by').value,'תאריך',$('p_date').value],[]];
+ const A=head.concat([['צרכן','כמות',"זרם ליח' [A]",'מפסק','מוזן מלוח','הערות','מקדם שימוש'].concat(G?['מקדם קבוצתי']:[]).concat(['סה"כ זרם מחושב [A]'])]);
+ used.forEach(c=>A.push([c.n,c.q,c.a,c.brk,c.bn,c.note,+c.u.toFixed(2)].concat(G?[+c.g.toFixed(2)]:[]).concat([+c.t.toFixed(1)])));
+ A.push(['סה"כ זרם נדרש לצריכה [A]','','','','','',''].concat(G?['']:[]).concat([+r.TA.toFixed(1)]));
+ const s1=XLSX.utils.aoa_to_sheet(A);s1['!cols']=[{wch:34},{wch:8},{wch:12},{wch:10},{wch:26},{wch:34},{wch:12},{wch:12},{wch:18}];
+ const B=head.concat([['לוח','מוזן מלוח','צרכן','כמות','זרם עבודה [A]','מקדם שימוש','סה"כ [A]','סה"כ ללוח [A]','מפסק הזנה מומלץ']]);
+ r.boards.forEach((b,bi)=>{const cs=used.filter(c=>c.b===b.id),subs=r.boards.filter(x=>x.p===b.id);let first=true;
+  const push=(a,q,i,u,t)=>{B.push([first?b.n:'',first?(bi===0?'חיבור חברת החשמל':boardName(b.p)):'',a,q,i,u,t,first?+b.a.toFixed(1):'',first?(b.a>0?'3X'+b.brk:''):''])};
+  cs.forEach(c=>{push(c.n,c.q,c.a,+c.u.toFixed(2),+c.t.toFixed(1));first=false});
+  subs.forEach(s=>{push((s.n||'לוח')+' – לוח משנה','','','',+s.a.toFixed(1));first=false});
+  if(first)push('','','','',0)});
+ const s2=XLSX.utils.aoa_to_sheet(B);s2['!cols']=[{wch:30},{wch:22},{wch:32},{wch:8},{wch:14},{wch:12},{wch:10},{wch:14},{wch:16}];
+ const bi=bldInput();
+ const C=head.concat([['גודל חיבור זמני מומלץ',r.TA>0?r.size+'A':''],['סה"כ זרם מחושב לכל האתר [A]',+r.TA.toFixed(1)],['מקדם ביטחון / רזרבה',r.RS],['זרם תכן לאחר רזרבה [A]',Math.round(r.TD)],['מנופים',r.cranes],['מעליות חיצוניות',r.hoists],['מתח קו (V)',r.V],['מקדם בו-זמניות קבוצתי',G?'מוחל לפי כמות':'לא מוחל'],[],['בניין','קומות מעל הקרקע','גובה [מ\']','סיווג']]
+  .concat(bi.buildings.map(b=>[b.name,num(b.floors)||'',num(b.height)||'',TTC.isTall(b)?'מעל 29 מ\'':'עד 29 מ\''])).concat(num(S.bf)?[['קומות מרתף',num(S.bf)]]:[]));
+ const s3=XLSX.utils.aoa_to_sheet(C);s3['!cols']=[{wch:34},{wch:18},{wch:12},{wch:14}];
+ [s1,s2,s3].forEach(s=>{s['!views']=[{RTL:true}]});
+ XLSX.utils.book_append_sheet(wb,s3,'סיכום וגודל חיבור');XLSX.utils.book_append_sheet(wb,s1,'תכנון צרכני חשמל זמני');XLSX.utils.book_append_sheet(wb,s2,'חלוקה ללוחות משנה');
+ wb.Workbook={Views:[{RTL:true}]};
+ XLSX.writeFile(wb,fname('xlsx'));toast('קובץ Excel הורד');
+}
+async function exportWord(){
+ const p=await svgToPng();
+ let body=$('doc').innerHTML.replace(/<img[^>]*>/,'<img src="logo.png" width="190" height="82">');
+ body=body.replace(/<div class="schw" id="schw">[\s\S]*?<\/svg><\/div>/,p?`<p align="center"><img src="scheme.png" width="${Math.min(640,p.w)}" height="${Math.round(Math.min(640,p.w)*p.h/p.w)}"></p>`:'');
+ const css=`body{font-family:Arial;direction:rtl;font-size:10.5pt}table{border-collapse:collapse;width:100%}td,th{border:1px solid #bbb;padding:3px 5px;text-align:right}th{background:#e8f2fb}h3{color:#C8102E;margin:0}h4{color:#C8102E;border-bottom:1px solid #e3b3bb;margin:14px 0 4px}.n{text-align:center}.tot td{background:#fbf3f4;font-weight:bold}.bn{font-weight:bold}.v{color:#C8102E;font-size:18pt;font-weight:bold}.big{border:2px solid #C8102E;padding:6px}.kv div{margin:2px 0}.ds{color:#555}.ft{color:#777;font-size:8pt;border-top:1px solid #ddd}.pb{page-break-before:always}`;
+ const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" lang="he" dir="rtl"><head><meta charset="utf-8"><style>${css}@page{size:A4;margin:1.6cm}</style></head><body dir="rtl" lang="he">${body}</body></html>`;
+ const B='----=_tiktin_boundary';const b64=s=>btoa(unescape(encodeURIComponent(s)));
+ let mht=`MIME-Version: 1.0\r\nContent-Type: multipart/related; boundary="${B}"; type="text/html"\r\n\r\n--${B}\r\nContent-Type: text/html; charset="utf-8"\r\nContent-Transfer-Encoding: base64\r\nContent-Location: file:///C:/doc.htm\r\n\r\n${b64(html)}\r\n`;
+ const part=(name,url)=>`--${B}\r\nContent-Type: image/png\r\nContent-Transfer-Encoding: base64\r\nContent-Location: file:///C:/${name}\r\n\r\n${url.split(',')[1]}\r\n`;
+ mht+=part('logo.png',LOGO);if(p)mht+=part('scheme.png',p.url);mht+=`--${B}--`;
+ dl(new Blob([mht],{type:'application/msword'}),fname('doc'));toast('קובץ Word הורד');
+}
+async function exportPDF(){
+ if(!window.html2pdf){toast('ייצוא PDF דורש חיבור לאינטרנט');return}
+ toast('מכין PDF…');const p=await svgToPng();const app=$('app'),z=app.style.zoom;app.style.zoom=1;
+ const node=$('doc').cloneNode(true);node.style.boxShadow='none';node.style.border='none';node.style.maxWidth='1000px';
+ const sw=node.querySelector('#schw');if(p&&sw)sw.innerHTML=`<img src="${p.url}" style="width:100%;max-width:${p.w}px">`;
+ const hold=document.createElement('div');hold.style.cssText='position:fixed;left:-12000px;top:0;width:1000px;background:#fff';hold.appendChild(node);document.body.appendChild(hold);
+ try{await html2pdf().set({margin:[8,8,8,8],filename:fname('pdf'),image:{type:'jpeg',quality:0.96},html2canvas:{scale:2,useCORS:true,windowWidth:1000},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy'],avoid:['tr','.big','.schw']}}).from(node).save();toast('קובץ PDF הורד')}
+ finally{hold.remove();app.style.zoom=z}
+}
+
+// ---------- זום ----------
+let Z=1;
+function zoomSet(z){Z=Math.max(.5,Math.min(2,Math.round(z*100)/100));$('app').style.zoom=Z;$('zv').textContent=Math.round(Z*100)+'%';try{localStorage.setItem('tiktin-temp-conn-z',Z)}catch(e){}}
+function zoomBy(d){zoomSet(Z+d*0.1)}
+function zoomFit(){zoomSet((document.documentElement.clientWidth-8)/1280)}
+
+// ---------- הפעלה ----------
+refTables();
+if(!readHandoff()){
+ let saved=null;try{saved=JSON.parse(localStorage.getItem('tiktin-temp-conn')||'null')}catch(e){}
+ if(saved&&saved.boards)applyState(saved);else{S=exampleState();$('bf').value=S.bf;fixUid();drawAll();calc()}
+}
+try{const z=parseFloat(localStorage.getItem('tiktin-temp-conn-z'));if(z)zoomSet(z)}catch(e){}
+</script>
+</body>
+</html>
